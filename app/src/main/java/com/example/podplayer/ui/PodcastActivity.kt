@@ -9,6 +9,7 @@ import android.view.ContextMenu
 import android.view.Menu
 import android.view.SearchEvent
 import android.view.View
+import kotlinx.android.synthetic.main.activity_podcast.*
 import android.widget.SearchView
 import com.example.podplayer.R
 import com.example.podplayer.repository.ItunesRepo
@@ -20,7 +21,7 @@ class PodcastActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_podcast)
-
+        setupToolbar()
     }
 
     private fun performSearch(term : String){
@@ -39,6 +40,9 @@ class PodcastActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupToolbar(){
+        setSupportActionBar(toolbar)
+    }
 
     //this method allows for updated intents to be received
     override fun onNewIntent(intent: Intent?) {

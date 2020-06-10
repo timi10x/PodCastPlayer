@@ -37,7 +37,15 @@ dependencies {
 
     //timber logging
     implementation 'com.jakewharton.timber:timber:4.7.1'
-    
+
+    //v7 support lib
+    implementation "com.android.support:appcompat-v7:$support_lib_version"
+    implementation "com.android.support:design:$support_lib_version"
+
+    //architecture
+    implementation "android.arch.lifecycle:extensions:$architecture_version"
+    //glide
+    implementation "com.github.bumptech.glide:glide:4.9.0"
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
