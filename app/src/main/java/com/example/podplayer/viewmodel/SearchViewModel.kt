@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import com.example.podplayer.repository.ItunesRepo
 import com.example.podplayer.service.PodcastResponse
+import com.example.podplayer.utils.DateUtils
 
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
     var itunesRepo: ItunesRepo? = null
@@ -15,11 +16,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         var feedUrl: String? = ""
     )
 
-    private fun itunesPodcaastToPodcastSummaryView(itunesPodcast: PodcastResponse.ItunesPodcast):
+    private fun itunesPodcastToPodcastSummaryView(itunesPodcast: PodcastResponse.ItunesPodcast):
             PodcastSummaryViewData {
         return PodcastSummaryViewData(
             itunesPodcast.collectionCensoredName,
-            itunesPodcast.releaseDate,
+            DateUtils.jsonDateToShortDate(itunesPodcast.releaseDate),
             itunesPodcast.artworkUrl30,
             itunesPodcast.feedUrl
         )
@@ -34,7 +35,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 callback(emptyList())
             } else {
                 val searchViews = results.map { podcast ->
-                    itunesPodcaastToPodcastSummaryView(podcast)
+                    itunesPodcastToPodcastSummaryView(podcast)
                 }
                 callback(searchViews)
             }
