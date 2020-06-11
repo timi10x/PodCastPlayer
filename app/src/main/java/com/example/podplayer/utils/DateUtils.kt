@@ -17,4 +17,10 @@ object DateUtils {
         )
         return outputFormat.format(date!!)
     }
+
+    fun xmlDateToDate(date: String): Date{
+        val date = date?: return Date()
+        val inFormat = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z")
+        return  inFormat.parse(date)
+    }
 }
