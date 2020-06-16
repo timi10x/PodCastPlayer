@@ -86,24 +86,38 @@ class PodcastDetailsFragment : Fragment(), EpisodeListAdapter.EpisodeListAdapter
 
     private fun startPlaying(
         episodeViewData: PodcastViewModel.EpisodeViewData
-    ){
+    ) {
         val fragmentActivity = activity as FragmentActivity
         val controller = MediaControllerCompat.getMediaController(fragmentActivity)
+        val viewData = podcastViewModel.activePodcastViewData ?: return
+        val bundle = Bundle()
+        bundle.putString(
+            MediaMetadataCompat.METADATA_KEY_TITLE,
+            episodeViewData.title
+        )
+        bundle.putString(
+            MediaMetadataCompat.METADATA_KEY_ALBUM_ARTIST,
+            viewData.feedTitle
+        )
+        bundle.putString(
+            MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI,
+            viewData.imageUrl
+        )
         controller.transportControls.playFromUri(
             Uri.parse(
                 episodeViewData.mediaUrl
-            ), null
+            ), bundle
         )
     }
 
     override fun onStart() {
         super.onStart()
-        if (mediaBrowser.isConnected){
+        if (mediaBrowser.isConnected) {
             val fragmentActivity = activity as FragmentActivity
-            if (MediaControllerCompat.getMediaController(fragmentActivity)== null){
+            if (MediaControllerCompat.getMediaController(fragmentActivity) == null) {
                 registerMediaController(mediaBrowser.sessionToken)
             }
-        }else{
+        } else {
             mediaBrowser.connect()
         }
     }
@@ -119,10 +133,11 @@ class PodcastDetailsFragment : Fragment(), EpisodeListAdapter.EpisodeListAdapter
     override fun onStop() {
         super.onStop()
         val fragmentActivity = activity as FragmentActivity
-        if (MediaControllerCompat.getMediaController(fragmentActivity)!=null){
+        if (MediaControllerCompat.getMediaController(fragmentActivity) != null) {
             mediaControllerCallback?.let {
                 MediaControllerCallback()?.let {
-                    MediaControllerCompat.getMediaController(fragmentActivity).unregisterCallback(it)
+                    MediaControllerCompat.getMediaController(fragmentActivity)
+                        .unregisterCallback(it)
                 }
             }
         }
@@ -156,10 +171,12 @@ class PodcastDetailsFragment : Fragment(), EpisodeListAdapter.EpisodeListAdapter
 
     private fun initMediaBrowser() {
         val fragmentActivity = activity as FragmentActivity
-        mediaBrowser = MediaBrowserCompat(fragmentActivity,
+        mediaBrowser = MediaBrowserCompat(
+            fragmentActivity,
             ComponentName(fragmentActivity, PodplayMediaService::class.java),
             MediaBrowserCallBacks(),
-            null)
+            null
+        )
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -179,7 +196,7 @@ class PodcastDetailsFragment : Fragment(), EpisodeListAdapter.EpisodeListAdapter
         return super.onOptionsItemSelected(item)
     }
 
-    private fun registerMediaController(token: MediaSessionCompat.Token){
+    private fun registerMediaController(token: MediaSessionCompat.Token) {
         val fragmentActivity = activity as FragmentActivity
         val mediaController = MediaControllerCompat(fragmentActivity, token)
 
@@ -198,14 +215,17 @@ class PodcastDetailsFragment : Fragment(), EpisodeListAdapter.EpisodeListAdapter
     interface OnPodcastDetailsListener {
         fun onSubscribe()
         fun onUnsubscribe()
+        fun onShowEpisodePlayer(episodeViewData: PodcastViewModel.EpisodeViewData)
     }
 
-    inner class MediaControllerCallback : MediaControllerCompat.Callback(){
+    inner class MediaControllerCallback : MediaControllerCompat.Callback() {
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
             super.onMetadataChanged(metadata)
-            println("metadata changed to ${
-            metadata?.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI)
-            }")
+            println(
+                "metadata changed to ${
+                metadata?.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI)
+                }"
+            )
         }
 
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
@@ -214,7 +234,7 @@ class PodcastDetailsFragment : Fragment(), EpisodeListAdapter.EpisodeListAdapter
         }
     }
 
-    inner class MediaBrowserCallBacks : MediaBrowserCompat.ConnectionCallback(){
+    inner class MediaBrowserCallBacks : MediaBrowserCompat.ConnectionCallback() {
         override fun onConnected() {
             super.onConnected()
             registerMediaController(mediaBrowser.sessionToken)
@@ -233,16 +253,6 @@ class PodcastDetailsFragment : Fragment(), EpisodeListAdapter.EpisodeListAdapter
     }
 
     override fun onSelectEpisode(episodeViewData: PodcastViewModel.EpisodeViewData) {
-        val fragmentActivity = activity as FragmentActivity
-        val controller = MediaControllerCompat.getMediaController(fragmentActivity)
-        if (controller.playbackState != null){
-            if (controller.playbackState.state == PlaybackStateCompat.STATE_PLAYING){
-                controller.transportControls.pause()
-            }else{
-                startPlaying(episodeViewData)
-            }
-        }else{
-            startPlaying(episodeViewData)
-        }
+        listener?.onShowEpisodePlayer(episodeViewData)
     }
 }
