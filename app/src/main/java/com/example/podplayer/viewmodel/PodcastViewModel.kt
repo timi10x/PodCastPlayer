@@ -18,7 +18,7 @@ class PodcastViewModel(application: Application) : AndroidViewModel
     private var activePodcast: Podcast? = null
     var livePodcastData: LiveData<List<SearchViewModel.PodcastSummaryViewData>>? = null
 
-    var activeEpisodeViewData : EpisodeViewData? = null
+    var activeEpisodeViewData: EpisodeViewData? = null
     fun getPodcast(
         podcastSummaryViewData: SearchViewModel.PodcastSummaryViewData,
         callback: (PodcastViewData?) ->
@@ -83,16 +83,15 @@ class PodcastViewModel(application: Application) : AndroidViewModel
 
     fun setActivePodcast(
         feedUrl: String,
-        callback: (SearchViewModel.PodcastSummaryViewData?)->Unit
-    ){
+        callback: (SearchViewModel.PodcastSummaryViewData?) -> Unit
+    ) {
         val repo = podcastRepo ?: return
         repo.getPodcast(
             feedUrl
-        ){
-            podcast ->
-            if (podcast == null){
+        ) { podcast ->
+            if (podcast == null) {
                 callback(null)
-            }else{
+            } else {
                 activePodcastViewData = podcastToPodcastView(podcast)
                 activePodcast = podcast
                 callback(podcastToSummaryView(podcast))
@@ -109,9 +108,10 @@ class PodcastViewModel(application: Application) : AndroidViewModel
 
     private fun episodesToEpisodesView(episodes: List<Episode>): List<EpisodeViewData> {
         return episodes.map {
+            val isVideo = it.mimeType.startsWith("video")
             EpisodeViewData(
                 it.guid, it.title, it.description, it.mediaUrl,
-                it.releaseDate, it.duration
+                it.releaseDate, it.duration, isVideo
             )
         }
     }
@@ -131,6 +131,7 @@ class PodcastViewModel(application: Application) : AndroidViewModel
         var description: String? = "",
         var mediaUrl: String? = "",
         var releaseDate: Date? = null,
-        var duration: String? = ""
+        var duration: String? = "",
+        var isVideo: Boolean = false
     )
 }
